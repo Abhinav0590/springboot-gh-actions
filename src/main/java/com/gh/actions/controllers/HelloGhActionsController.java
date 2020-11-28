@@ -8,7 +8,7 @@ public class HelloGhActionsController {
 
     @GetMapping("/hello")
     public String getGreetings() {
-        return "hello from gh-actions controller!";
+        return "hello from gh-actions controller";
 
     }
 
