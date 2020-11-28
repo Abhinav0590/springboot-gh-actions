@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, macOS-latest]
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 1.8
@@ -36,8 +36,24 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: Extract Version
+        run: |
+          ver=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          ver=$(echo $ver | awk -F- '{print $1}')
+          echo "PROJECT_VERSION=$ver" >> $GITHUB_ENV
       - name: Release with Maven
         run: |
           git config user.name abhinav
           git config user.email abhinavvermabit@gmail.com
           mvn -B release:prepare release:perform -Darguments="-Dmaven.deploy.skip=true"
+      - name: Docker Login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Publish Docker
+        run: |
+          docker build -t abhinav05/springboot-gh-actions:latest .
+          docker tag abhinav05/springboot-gh-actions:latest abhinav05/springboot-gh-actions:$PROJECT_VERSION
+          docker push abhinav05/springboot-gh-actions:latest
+          docker push abhinav05/springboot-gh-actions:$PROJECT_VERSION
