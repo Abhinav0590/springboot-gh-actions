@@ -37,4 +37,7 @@ jobs:
         with:
           java-version: 1.8
       - name: Release with Maven
-        run: mvn -B release:prepare release:perform -Darguments="-Dmaven.deploy.skip=true"
+        run: |
+          git config user.name abhinav
+          git config user.email abhinavvermabit@gmail.com
+          mvn -B release:prepare release:perform -Darguments="-Dmaven.deploy.skip=true"
