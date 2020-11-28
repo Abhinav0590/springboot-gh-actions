@@ -9,13 +9,13 @@
 	</parent>
 	<groupId>com.gh.actions</groupId>
 	<artifactId>springboot-gh-actions</artifactId>
-	<version>0.0.6</version>
+	<version>0.0.7-SNAPSHOT</version>
 	<name>springboot-gh-actions</name>
 	<description>Demo project for Spring Boot</description>
 
 	<scm>
 		<connection>scm:git:https://github.com/Abhinav0590/springboot-gh-actions.git</connection>
-	  <tag>springboot-gh-actions-0.0.6</tag>
+	  <tag>HEAD</tag>
   </scm>
 
 	<properties>
