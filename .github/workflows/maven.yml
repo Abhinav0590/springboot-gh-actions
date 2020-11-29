@@ -1,62 +1,62 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: Java CI with Maven
-
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
-jobs:
-  build:
-    if: ${{ github.event_name == 'pull_request'}}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macOS-latest]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
-    - name: Build with Maven
-      run: mvn clean package
-
-  build_deploy:
-    if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, 'maven-release-plugin')}}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-      - name: Extract Version
-        run: |
-          ver=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          ver=$(echo $ver | awk -F- '{print $1}')
-          echo "PROJECT_VERSION=$ver" >> $GITHUB_ENV
-      - name: Release with Maven
-        run: |
-          git config user.name abhinav
-          git config user.email abhinavvermabit@gmail.com
-          mvn -B release:prepare release:perform -Darguments="-Dmaven.deploy.skip=true"
-      - name: Docker Login
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Publish Docker
-        run: |
-          docker build -t abhinav05/springboot-gh-actions:latest .
-          docker tag abhinav05/springboot-gh-actions:latest abhinav05/springboot-gh-actions:$PROJECT_VERSION
-          docker push abhinav05/springboot-gh-actions:latest
-          docker push abhinav05/springboot-gh-actions:$PROJECT_VERSION
-      - uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'github-actions'
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          images: 'abhinav05/springboot-gh-actions:latest'
+## This workflow will build a Java project with Maven
+## For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+#
+#name: Java CI with Maven
+#
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
+#
+#jobs:
+#  build:
+#    if: ${{ github.event_name == 'pull_request'}}
+#    runs-on: ${{ matrix.os }}
+#    strategy:
+#      matrix:
+#        os: [ubuntu-latest, macOS-latest]
+#    steps:
+#    - uses: actions/checkout@v2
+#    - name: Set up JDK 1.8
+#      uses: actions/setup-java@v1
+#      with:
+#        java-version: 1.8
+#    - name: Build with Maven
+#      run: mvn clean package
+#
+#  build_deploy:
+#    if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, 'maven-release-plugin')}}
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Set up JDK 1.8
+#        uses: actions/setup-java@v1
+#        with:
+#          java-version: 1.8
+#      - name: Extract Version
+#        run: |
+#          ver=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+#          ver=$(echo $ver | awk -F- '{print $1}')
+#          echo "PROJECT_VERSION=$ver" >> $GITHUB_ENV
+#      - name: Release with Maven
+#        run: |
+#          git config user.name abhinav
+#          git config user.email abhinavvermabit@gmail.com
+#          mvn -B release:prepare release:perform -Darguments="-Dmaven.deploy.skip=true"
+#      - name: Docker Login
+#        uses: docker/login-action@v1
+#        with:
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+#      - name: Publish Docker
+#        run: |
+#          docker build -t abhinav05/springboot-gh-actions:latest .
+#          docker tag abhinav05/springboot-gh-actions:latest abhinav05/springboot-gh-actions:$PROJECT_VERSION
+#          docker push abhinav05/springboot-gh-actions:latest
+#          docker push abhinav05/springboot-gh-actions:$PROJECT_VERSION
+#      - uses: azure/webapps-deploy@v2
+#        with:
+#          app-name: 'github-actions'
+#          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+#          images: 'abhinav05/springboot-gh-actions:latest'
